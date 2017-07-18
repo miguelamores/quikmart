@@ -3,6 +3,8 @@ package com.quikmart.ec;
 import com.quikmart.ec.model.Item;
 import com.quikmart.ec.model.ShoppingCart;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,14 +16,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        /*Files.lines(Paths.get("D:\\DeftConsulting\\src\\com\\quikmart\\ec\\inventory.txt"))
-                .map(line -> line.split("s|:|,")) // Stream<String[]>
-                .flatMap(Arrays::stream) // Stream<String>
-                .forEach(System.out::println);*/
-        //.map(line -> line.split("\\s+ :+ ,")) // Stream<String[]>
-
-
-
         ArrayList<Item> inventoryList = new ArrayList<>();
         Item item;
         String itemName;
@@ -31,10 +25,11 @@ public class Main {
 
         ///Users/miguelamores/Documents/quikmart/ec/inventory.txt
         //D:\DeftConsulting\src\com\quikmart\ec\inventory.txt
-        for (String line : Files.readAllLines(Paths.get("/Users/miguelamores/Documents/quikmart/src/com/quikmart/ec/inventory.txt"))) {
+        String workingDir = System.getProperty("user.dir");
+        System.out.println("INVENTORY LIST");
+        for (String line : Files.readAllLines(Paths.get(workingDir+"\\src\\com\\quikmart\\ec\\inventory.txt"))) {
             System.out.println(line);
             item = new Item();
-            System.out.println(item);
             int count = 0;
             for (String part : line.split("s|:|,")) {
                 String part2 = part.replaceAll("\\s","");
@@ -111,7 +106,29 @@ public class Main {
                 case 2: System.out.println(shoppingCart.toString());
                         break;
 
-                case 3:
+                case 3: {
+                    System.out.print("Name of item you want to remove: ");
+
+                    itemName = scanner.next();
+                    System.out.print("Quantity: ");
+                    quantity = Integer.valueOf(scanner.next());
+                    shoppingCart.removeItem(itemName, quantity);
+                    break;
+                }
+
+                case 4: {
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(workingDir+"\\src\\com\\quikmart\\ec\\transaction_"+shoppingCart.getTransactionId()+".txt"))) {
+
+                        bw.write(shoppingCart.checkoutAndPrint());
+
+                        System.out.println("Done");
+
+                    } catch (IOException e) {
+
+                        e.printStackTrace();
+
+                    }
+                    break;}
 
                 case 0: loop = 1;
                 default: System.out.println("Invalid option");
