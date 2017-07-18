@@ -32,14 +32,23 @@ public class ShoppingCart {
         itemCount += quantity;
     }
 
+    public String checkoutAndPrint() {
+        return "";
+    }
+
     @Override
     public String toString() {
-        return "ShoppingCart{";
-                /*+
-                "items=" + items +
-                ", itemCount=" + itemCount +
-                ", totalPrice=" + totalPrice +
-                ", customer='" + customer + '\'' +
-                '}';*/
+        String totalItems = "";
+        for (Item item: items) {
+            totalItems += item.getName()+",";
+        }
+
+        return "********************************************************\n" +
+                "Your ShoppingCart is: \n"
+                +
+                "items= " + totalItems + "\n"+
+                ", Number of items=" + itemCount + "\n"+
+                ", total price= $" + totalPrice + "\n"+
+                "*******************************************************";
     }
 }

@@ -29,7 +29,9 @@ public class Main {
         int quantity;
         boolean customer = false;
 
-        for (String line : Files.readAllLines(Paths.get("D:\\DeftConsulting\\src\\com\\quikmart\\ec\\inventory.txt"))) {
+        ///Users/miguelamores/Documents/quikmart/ec/inventory.txt
+        //D:\DeftConsulting\src\com\quikmart\ec\inventory.txt
+        for (String line : Files.readAllLines(Paths.get("/Users/miguelamores/Documents/quikmart/src/com/quikmart/ec/inventory.txt"))) {
             System.out.println(line);
             item = new Item();
             System.out.println(item);
@@ -59,44 +61,63 @@ public class Main {
         String keepShopping = "y";
         ShoppingCart shoppingCart =  new ShoppingCart();
 
-        do{
-            System.out.print ("Select kind of member: \n" +
-                    "a) Rewards Member\n" +
-                    "b) Regular customer\n");
-            //customer = scanner.next();
-            switch (scanner.next()) {
-                case "a": customer = true;
-                            break;
-                case "b": customer = false;
-                            break;
-            }
+        System.out.print ("Select kind of member: \n" +
+                "a) Rewards Member\n" +
+                "b) Regular customer\n");
+        //customer = scanner.next();
+        switch (scanner.next()) {
+            case "a": customer = true;
+                break;
+            case "b": customer = false;
+                break;
+        }
 
+        int loop = 0;
+        do {
+            System.out.print ("Select the options: \n");
+            System.out.print ("1) Add items to cart\n");
+            System.out.print ("2) View cart\n");
+            System.out.print ("3) Remove items\n");
+            System.out.print ("4) Checkout and print\n");
+            System.out.print ("0) Quit\n");
 
-            System.out.print ("Enter the name of the item: ");
-            itemName = scanner.next();
+            switch (Integer.valueOf(scanner.next())) {
+                case 1: {
+                    do{
+                        System.out.print ("Enter the name of the item: ");
+                        itemName = scanner.next();
 
-            for (Item item1: inventoryList) {
-                if (item1.getName().equals(itemName)){
-                    System.out.print ("Enter the quantity: ");
-                    quantity = Integer.valueOf(scanner.next());
+                        for (Item item1: inventoryList) {
+                            if (item1.getName().equalsIgnoreCase(itemName)){
+                                System.out.print ("Enter the quantity: ");
+                                quantity = Integer.valueOf(scanner.next());
 
-                    if (customer == Boolean.TRUE){
-                        itemPrice = item1.getMemberPrice();
-                    } else {
-                        itemPrice = item1.getRegularPrice();
-                    }
+                                if (customer == Boolean.TRUE){
+                                    itemPrice = item1.getMemberPrice();
+                                } else {
+                                    itemPrice = item1.getRegularPrice();
+                                }
 
-                    shoppingCart.addToCart(itemName, quantity, itemPrice, item1.getTaxStatus());
+                                shoppingCart.addToCart(itemName, quantity, itemPrice, item1.getTaxStatus());
+                            }
+                        }
+
+                        System.out.print ("Continue shopping (y/n)? ");
+                        keepShopping = scanner.next();
+                    }while (keepShopping.equals("y"));
+                    break;
                 }
+
+                case 2: System.out.println(shoppingCart.toString());
+                        break;
+
+                case 3:
+
+                case 0: loop = 1;
+                default: System.out.println("Invalid option");
+                    break;
             }
-
-
-            System.out.println(shoppingCart);
-
-
-            System.out.print ("Continue shopping (y/n)? ");
-            keepShopping = scanner.next();
-        }while (keepShopping.equals("y"));
+        } while (loop == 0);
 
 
     }
