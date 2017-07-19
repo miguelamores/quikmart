@@ -43,7 +43,7 @@ public class ShoppingCart {
     }
 
     public void addToCart(String itemName, int quantity, double price, String taxStatus) {
-        Item tmp = new Item(itemName, quantity, price, price, "Taxable");
+        Item tmp = new Item(itemName, quantity, price, price, taxStatus);
         totalPrice += price * quantity;
         items.add(tmp);
         itemCount += quantity;

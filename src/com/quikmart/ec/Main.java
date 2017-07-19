@@ -8,7 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 public class Main {
@@ -58,7 +60,7 @@ public class Main {
         System.out.print ("Select kind of member: \n" +
                 "a) Rewards Member\n" +
                 "b) Regular customer\n");
-        //customer = scanner.next();
+
         switch (scanner.next()) {
             case "a": customer = true;
                 break;
@@ -75,7 +77,7 @@ public class Main {
             System.out.print ("4) Checkout and print\n");
             System.out.print ("0) Quit\n");
 
-            switch (Integer.valueOf(scanner.next())) {
+            switch (scanner.nextInt()) {
                 case 1: {
                     do{
                         System.out.print ("Enter the name of the item: ");
@@ -84,7 +86,7 @@ public class Main {
                         for (Item item1: inventoryList) {
                             if (item1.getName().equalsIgnoreCase(itemName)){
                                 System.out.print ("Enter the quantity: ");
-                                quantity = Integer.valueOf(scanner.next());
+                                quantity = scanner.nextInt();
 
                                 if (customer == Boolean.TRUE){
                                     itemPrice = item1.getMemberPrice();
@@ -119,7 +121,10 @@ public class Main {
                 }
 
                 case 4: {
-                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(workingDir+"\\src\\com\\quikmart\\ec\\transaction_"+shoppingCart.getTransactionId()+".txt"))) {
+                    Date date = new Date();
+                    DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(workingDir+"\\src\\com\\quikmart\\ec\\transaction_"+
+                            shoppingCart.getTransactionId()+".txt"))) {
 
                         bw.write(shoppingCart.checkoutAndPrint());
 
