@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -93,7 +92,10 @@ public class Main {
                                     itemPrice = item1.getRegularPrice();
                                 }
 
-                                shoppingCart.addToCart(itemName, quantity, itemPrice, item1.getTaxStatus());
+                                if (item1.getQuantity()>=quantity)
+                                    shoppingCart.addToCart(itemName, quantity, itemPrice, item1.getTaxStatus());
+                                else
+                                    System.out.println("There are not enought product, currently there are: "+ item1.getQuantity());
                             }
                         }
 
@@ -122,6 +124,22 @@ public class Main {
                         bw.write(shoppingCart.checkoutAndPrint());
 
                         System.out.println("Done");
+                        String inventoryUpdated="";
+                        for (Item itemInventory: inventoryList) {
+                            for (Item itemBought: shoppingCart.getItems()) {
+                                if (itemBought.getName().equalsIgnoreCase(itemInventory.getName())){
+                                    itemInventory.setQuantity(itemInventory.getQuantity()-itemBought.getQuantity());
+                                }
+                            }
+                            inventoryUpdated += itemInventory.getName()+": "+itemInventory.getQuantity()+", "+itemInventory.getRegularPrice()+", " +
+                                    itemInventory.getMemberPrice()+", "+itemInventory.getTaxStatus()+"\r\n";
+                        }
+
+                        try (BufferedWriter bw2 = new BufferedWriter(new FileWriter(workingDir+"\\src\\com\\quikmart\\ec\\inventory.txt"))){
+                            bw2.write(inventoryUpdated);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
                     } catch (IOException e) {
 
