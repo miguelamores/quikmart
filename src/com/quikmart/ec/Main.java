@@ -4,6 +4,7 @@ import com.quikmart.ec.model.Item;
 import com.quikmart.ec.model.ShoppingCart;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,15 +21,18 @@ public class Main {
         ArrayList<Item> inventoryList = new ArrayList<>();
         Item item;
         String itemName;
+        String inventoryUpdated="";
         double itemPrice;
         int quantity;
         boolean customer = false;
 
-        ///Users/miguelamores/Documents/quikmart/ec/inventory.txt
-        //D:\DeftConsulting\src\com\quikmart\ec\inventory.txt
         String workingDir = System.getProperty("user.dir");
+        final String INVENTORY = workingDir+"/src/com/quikmart/ec/inventory.txt";
+
+                ///Users/miguelamores/Documents/quikmart/ec/inventory.txt
+        //D:\DeftConsulting\src\com\quikmart\ec\inventory.txt
         System.out.println("INVENTORY LIST");
-        for (String line : Files.readAllLines(Paths.get(workingDir+"\\src\\com\\quikmart\\ec\\inventory.txt"))) {
+        for (String line : Files.readAllLines(Paths.get(INVENTORY))) {
             System.out.println(line);
             item = new Item();
             int count = 0;
@@ -57,6 +61,10 @@ public class Main {
         String keepShopping = "y";
         ShoppingCart shoppingCart =  new ShoppingCart();
 
+        final String TRANSACTIONFACT = workingDir+"/src/com/quikmart/ec/transaction_"+
+                shoppingCart.getTransactionId()+".txt";
+
+
         System.out.print ("Select kind of member: \n" +
                 "a) Rewards Member\n" +
                 "b) Regular customer\n");
@@ -75,6 +83,7 @@ public class Main {
             System.out.print ("2) View cart\n");
             System.out.print ("3) Remove items\n");
             System.out.print ("4) Checkout and print\n");
+            System.out.print ("5) Cancel transaction\n");
             System.out.print ("0) Quit\n");
 
             switch (scanner.nextInt()) {
@@ -123,28 +132,25 @@ public class Main {
                 case 4: {
                     Date date = new Date();
                     DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date);
-                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(workingDir+"\\src\\com\\quikmart\\ec\\transaction_"+
-                            shoppingCart.getTransactionId()+".txt"))) {
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(TRANSACTIONFACT))) {
 
-                        bw.write(shoppingCart.checkoutAndPrint());
+                        System.out.println("Enter cash: ");
+                        double cash= scanner.nextDouble();
+                        if(cash > shoppingCart.getTotalPrice()){
+                            bw.write(shoppingCart.checkoutAndPrint(cash));
 
-                        System.out.println("Done");
-                        String inventoryUpdated="";
-                        for (Item itemInventory: inventoryList) {
-                            for (Item itemBought: shoppingCart.getItems()) {
-                                if (itemBought.getName().equalsIgnoreCase(itemInventory.getName())){
-                                    itemInventory.setQuantity(itemInventory.getQuantity()-itemBought.getQuantity());
-                                }
+                            System.out.println("Done");
+                            inventoryUpdated = updateInventory(inventoryList, inventoryUpdated, shoppingCart, "checkout");
+
+                            try (BufferedWriter bw2 = new BufferedWriter(new FileWriter(INVENTORY))){
+                                bw2.write(inventoryUpdated);
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                            inventoryUpdated += itemInventory.getName()+": "+itemInventory.getQuantity()+", "+itemInventory.getRegularPrice()+", " +
-                                    itemInventory.getMemberPrice()+", "+itemInventory.getTaxStatus()+"\r\n";
+                        } else {
+                            System.out.println("Not enaugh cash!!");
                         }
 
-                        try (BufferedWriter bw2 = new BufferedWriter(new FileWriter(workingDir+"\\src\\com\\quikmart\\ec\\inventory.txt"))){
-                            bw2.write(inventoryUpdated);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
 
                     } catch (IOException e) {
 
@@ -153,6 +159,20 @@ public class Main {
                     }
                     break;}
 
+                case 5: {
+                    inventoryUpdated = "";
+                    inventoryUpdated = updateInventory(inventoryList, inventoryUpdated, shoppingCart, "cancel");
+                    try (BufferedWriter bw2 = new BufferedWriter(new FileWriter(INVENTORY))){
+                        bw2.write(inventoryUpdated);
+                        File file = new File(TRANSACTIONFACT);
+                        file.delete();
+                        System.out.println("Transaction deleted");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                }
+
                 case 0: loop = 1;
                 default: System.out.println("Invalid option");
                     break;
@@ -160,5 +180,21 @@ public class Main {
         } while (loop == 0);
 
 
+    }
+
+    private static String updateInventory(ArrayList<Item> inventoryList, String inventoryUpdated, ShoppingCart shoppingCart, String checkoutOrCancel) {
+        for (Item itemInventory: inventoryList) {
+            for (Item itemBought: shoppingCart.getItems()) {
+                if (itemBought.getName().equalsIgnoreCase(itemInventory.getName())){
+                    if ("cancel".equals(checkoutOrCancel))
+                        itemInventory.setQuantity(itemInventory.getQuantity()+itemBought.getQuantity());
+                    else
+                        itemInventory.setQuantity(itemInventory.getQuantity()-itemBought.getQuantity());
+                }
+            }
+            inventoryUpdated += itemInventory.getName()+": "+itemInventory.getQuantity()+", "+itemInventory.getRegularPrice()+", " +
+                    itemInventory.getMemberPrice()+", "+itemInventory.getTaxStatus()+"\r\n";
+        }
+        return inventoryUpdated;
     }
 }

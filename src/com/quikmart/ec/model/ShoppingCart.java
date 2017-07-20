@@ -1,5 +1,6 @@
 package com.quikmart.ec.model;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,7 +18,15 @@ public class ShoppingCart {
     private List<Item> items = new ArrayList<>();
     private int itemCount;
     private double totalPrice;
-    private String customer;
+    private double tax;
+
+    public double getTax() {
+        return tax;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
 
     public long getTransactionId() {
         return transactionId;
@@ -35,11 +44,11 @@ public class ShoppingCart {
         transactionId += count;
     }
 
-    public ShoppingCart(List<Item> items, int itemCount, double totalPrice, String customer) {
+    public ShoppingCart(List<Item> items, int itemCount, double totalPrice, double tax) {
         this.items = items;
         this.itemCount = itemCount;
         this.totalPrice = totalPrice;
-        this.customer = customer;
+        this.tax = tax;
     }
 
     public void addToCart(String itemName, int quantity, double price, String taxStatus) {
@@ -47,6 +56,9 @@ public class ShoppingCart {
         totalPrice += price * quantity;
         items.add(tmp);
         itemCount += quantity;
+        if (taxStatus.equals("Taxable")){
+            tax += price*0.065*quantity;
+        }
     }
 
     public void removeItem(String itemName, int quantity){
@@ -63,7 +75,8 @@ public class ShoppingCart {
         }
     }
 
-    public String checkoutAndPrint() {
+    public String checkoutAndPrint(double cash) {
+        BigDecimal change = BigDecimal.valueOf(totalPrice).add(BigDecimal.valueOf(tax));
         Date now = new Date();
         String output = ""+ DateFormat.getDateTimeInstance(
                 DateFormat.LONG, DateFormat.SHORT).format(now)+ "\r\n" +
@@ -77,6 +90,10 @@ public class ShoppingCart {
         output += "*****************************************\r\n" +
                 "TOTAL NUMBER OF ITEMS SOLD: "+itemCount+"\r\n" +
                 "SUB-TOTAL: $"+totalPrice+"\r\n" +
+                "TAX(6.5%): $"+tax+"\r\n" +
+                "TOTAL: $"+ change+"\r\n" +
+                "CASH: $"+ cash+"\r\n" +
+                "CHANGE: $"+ BigDecimal.valueOf(cash).subtract(change)+ "\r\n"+
                 "*****************************************";
         return output;
     }
